@@ -1,0 +1,52 @@
+import pandas as pd
+
+data = pd.read_csv("Mall_Customers.csv")
+
+data.shape
+
+data.describe()
+
+data.info()
+
+data.head(8)
+
+# Assuming you've selected appropriate columns and handled categorical data
+X = data[['Annual Income (k$)', 'Spending Score (1-100)']]
+
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# Calculate the sum of squared distances for different cluster numbers
+sse = []
+for k in range(1, 21):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    sse.append(kmeans.inertia_)
+
+# Plot the Elbow curve
+plt.figure(figsize=(8, 6))
+plt.plot(range(1, 21), sse, marker='o')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Sum of Squared Distances')
+plt.title('Elbow Method')
+plt.show()
+
+
+# Assuming you've determined the optimal number of clusters (let's say 5)
+optimal_clusters = 5
+
+kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
+kmeans.fit(X)
+
+# Add the cluster labels to the original DataFrame
+data['Cluster'] = kmeans.labels_
+
+
+import seaborn as sns
+
+plt.figure(figsize=(10, 8))
+sns.scatterplot(x='Annual Income (k$)', y='Spending Score (1-100)', hue='Cluster', data=data, palette='colorblind')
+plt.title('K-means Clustering')
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.show()
